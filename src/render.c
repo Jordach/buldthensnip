@@ -1617,7 +1617,7 @@ void render_cubemap(uint32_t *pixels, int width, int height, int pitch, camera_t
 	}*/
 }
 
-void render_pmf_box(float x, float y, float z, float depth, float r, uint32_t color)
+void render_pmf_box(float x, float y, float z, float depth, float r, uint32_t color, float *z2)
 {
 	// check Z straight away
 	if(z < 0.001f)
@@ -1630,7 +1630,9 @@ void render_pmf_box(float x, float y, float z, float depth, float r, uint32_t co
 	int y2 = (( y+r)/z)*rtmp_width/2+rtmp_height/2;
 	
 	// render
-	render_rect_zbuf(rtmp_pixels, dbuf, x1, y1, x2, y2, color, depth);
+	render_vxl_cube(color, z2, x1, y1, x2, y2, color, depth, r, x1*x1+y1*y2+z*z);
+	
+
 }
 
 void render_pmf_bone(uint32_t *pixels, int width, int height, int pitch, camera_t *cam_base,
@@ -1664,6 +1666,7 @@ void render_pmf_bone(uint32_t *pixels, int width, int height, int pitch, camera_
 		float x = pt->x;
 		float y = pt->y;
 		float z = pt->z;
+		
 		
 		// rotate
 		float sry = sin(ry);
@@ -1724,8 +1727,11 @@ void render_pmf_bone(uint32_t *pixels, int width, int height, int pitch, camera_
 		}
 		//depth *= z*rezoom;
 		
+		//storage variable since C is a dick and C++ is better..
+		float *zHold = &z;
+		
 		// plotinate
-		render_pmf_box(-x, y, z, depth, pt->radius*scale, color);
+		render_pmf_box(-x, y, z, depth, pt->radius*scale, color, zHold);
 	}
 }
 
